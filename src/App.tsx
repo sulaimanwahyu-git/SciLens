@@ -10,7 +10,7 @@ import { motion } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'lab' | 'dialog' | 'tutor' | 'guru' | 'kuis' | 'solver' | 'tips' | 'jurnal'>('home');
