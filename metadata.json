@@ -1,0 +1,5 @@
+{
+  "name": "SciLens AI",
+  "description": "Asisten pendidikan IPA profesional untuk siswa SMP.",
+  "requestFramePermissions": ["camera"]
+}
