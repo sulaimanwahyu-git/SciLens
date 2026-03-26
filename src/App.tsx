@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import React from 'react';
-import { Camera, MessageSquare, BookOpen, Send, Upload, Home, Briefcase, Lightbulb, Gamepad2, PenTool } from 'lucide-react';
+import { Camera, MessageSquare, BookOpen, Send, Upload, Home, Briefcase, Lightbulb, Gamepad2, PenTool, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
@@ -31,6 +31,8 @@ export default function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [literacyAnalysisResult, setLiteracyAnalysisResult] = useState<string | null>(null);
   const [isAnalyzingLiteracy, setIsAnalyzingLiteracy] = useState(false);
+  const [solverImage, setSolverImage] = useState<string | null>(null);
+  const [isAnalyzingSolver, setIsAnalyzingSolver] = useState(false);
   
   // Updated State for Kuis
   const [kuisState, setKuisState] = useState<{
@@ -50,6 +52,17 @@ export default function App() {
       reader.onloadend = () => {
         setSelectedImage(reader.result as string);
         setAnalysisResult(null);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSolverImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSolverImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -163,22 +176,24 @@ export default function App() {
         <p className="text-sm text-slate-500 mt-1">Jelajahi keajaiban IPA dengan cerdas.</p>
       </header>
 
-      <nav className="grid grid-cols-3 p-2 gap-2 bg-white border-b border-slate-100 sticky top-0 z-10">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex flex-col items-center justify-center gap-1 p-3 rounded-2xl transition-all duration-200 text-xs font-semibold ${
-              activeTab === tab.id 
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' 
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <tab.icon size={22} />
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+      {activeTab === 'home' && (
+        <nav className="grid grid-cols-3 p-2 gap-2 bg-white border-b border-slate-100 sticky top-0 z-10">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex flex-col items-center justify-center gap-1 p-3 rounded-2xl transition-all duration-200 text-xs font-semibold ${
+                activeTab === tab.id 
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' 
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              <tab.icon size={22} />
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      )}
 
       <main className="p-4 pb-20">
         <motion.div
@@ -220,7 +235,14 @@ export default function App() {
           )}
           {activeTab === 'lab' && (
             <div className="space-y-4">
+              <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
+                <ArrowLeft size={20} /> Kembali
+              </button>
               <h2 className="text-lg font-semibold">Detektif Lab (Vision)</h2>
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
+                <p><strong>Fungsi:</strong> Menganalisis gambar hasil praktikum atau fenomena alam secara ilmiah.</p>
+                <p><strong>Cara Pakai:</strong> Klik "Unggah Foto", pilih gambar, lalu klik "Analisis Foto". AI akan menjelaskan apa yang ada di foto tersebut.</p>
+              </div>
               <p className="text-slate-600">Unggah foto hasil praktikum Anda untuk dianalisis.</p>
               {selectedImage && (
                 <div className="space-y-4">
@@ -248,7 +270,14 @@ export default function App() {
           )}
           {activeTab === 'dialog' && (
             <div className="space-y-4">
+              <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
+                <ArrowLeft size={20} /> Kembali
+              </button>
               <h2 className="text-lg font-semibold">Tanya AI (Roleplay)</h2>
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
+                <p><strong>Fungsi:</strong> Berdiskusi dengan AI mengenai materi IPA seolah-olah sedang berbicara dengan seorang ahli.</p>
+                <p><strong>Cara Pakai:</strong> Ketik pertanyaan atau topik IPA di kolom pesan, lalu kirim. AI akan menjawab dengan penjelasan yang mudah dipahami.</p>
+              </div>
               <div className="h-64 bg-slate-50 rounded-xl p-4 overflow-y-auto border border-slate-200 space-y-2">
                 {messages.length === 0 && <p className="text-slate-500 italic">Dialog akan muncul di sini...</p>}
                 {messages.map((msg, idx) => (
@@ -274,7 +303,14 @@ export default function App() {
           )}
           {activeTab === 'tutor' && (
             <div className="space-y-4">
+              <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
+                <ArrowLeft size={20} /> Kembali
+              </button>
               <h2 className="text-lg font-semibold">Mode Tutor Literasi (Video & Teks)</h2>
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
+                <p><strong>Fungsi:</strong> Meringkas materi teks IPA yang panjang menjadi poin-poin penting.</p>
+                <p><strong>Cara Pakai:</strong> Masukkan teks materi ke dalam kolom, lalu klik "Analisis Materi". AI akan memberikan ringkasan dan pertanyaan pemahaman.</p>
+              </div>
               <textarea
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
@@ -302,7 +338,14 @@ export default function App() {
           )}
           {activeTab === 'jurnal' && (
             <div className="space-y-4">
+              <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
+                <ArrowLeft size={20} /> Kembali
+              </button>
               <h2 className="text-lg font-semibold">Jurnal Belajar IPA</h2>
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
+                <p><strong>Fungsi:</strong> Mencatat hasil pengamatan praktikum atau catatan penting pelajaran.</p>
+                <p><strong>Cara Pakai:</strong> Gunakan tombol kategori (Tujuan, Alat, dll.) untuk menyusun catatan, lalu tulis detailnya di kolom bawah dan klik "Simpan Catatan".</p>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {['Tujuan', 'Alat & Bahan', 'Langkah', 'Hasil', 'Kesimpulan'].map(point => (
                   <button 
@@ -330,7 +373,14 @@ export default function App() {
           )}
           {activeTab === 'guru' && (
             <div className="space-y-4">
+              <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
+                <ArrowLeft size={20} /> Kembali
+              </button>
               <h2 className="text-lg font-semibold">Mode Guru</h2>
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
+                <p><strong>Fungsi:</strong> Membantu guru menyusun perangkat pembelajaran (RPP, LKPD, Asesmen) secara otomatis.</p>
+                <p><strong>Cara Pakai:</strong> Masukkan kata kunci, pilih topik dan kelas, lalu pilih jenis perangkat yang ingin dibuat dan klik "Generate".</p>
+              </div>
               {!isGuruAuthenticated ? (
                 <div className="space-y-4">
                   <p className="text-slate-600">Masukkan kata kunci untuk mengakses fitur guru.</p>
@@ -443,7 +493,14 @@ export default function App() {
           )}
           {activeTab === 'tips' && (
             <div className="space-y-4">
+              <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
+                <ArrowLeft size={20} /> Kembali
+              </button>
               <h2 className="text-lg font-semibold">Tips Belajar IPA</h2>
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900 mb-4">
+                <p><strong>Fungsi:</strong> Memberikan panduan strategi belajar IPA yang efektif.</p>
+                <p><strong>Cara Pakai:</strong> Baca tips yang tersedia, atau klik tombol "Konsultasi dengan SciLens" untuk bertanya lebih lanjut.</p>
+              </div>
               <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 space-y-4">
                 <p>Belajar IPA itu seru! Berikut tips agar belajarmu lebih efektif:</p>
                 <ul className="list-disc list-inside space-y-2 text-slate-700">
@@ -462,7 +519,14 @@ export default function App() {
           )}
           {activeTab === 'kuis' && (
             <div className="space-y-4">
+              <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
+                <ArrowLeft size={20} /> Kembali
+              </button>
               <h2 className="text-lg font-semibold">Game Seru</h2>
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
+                <p><strong>Fungsi:</strong> Menguji pemahaman materi IPA melalui kuis interaktif.</p>
+                <p><strong>Cara Pakai:</strong> Pilih materi, klik "Mulai Game", jawab soal yang muncul, dan kumpulkan skor tertinggi!</p>
+              </div>
               {!kuisState.active ? (
                 <div className="space-y-4">
                   <p className="text-sm text-slate-600">Pilih materi untuk memulai game:</p>
@@ -517,13 +581,40 @@ export default function App() {
           )}
           {activeTab === 'solver' && (
             <div className="space-y-4">
+              <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 text-emerald-700 font-semibold mb-2">
+                <ArrowLeft size={20} /> Kembali
+              </button>
               <h2 className="text-lg font-semibold">Solver Sakti</h2>
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
+                <p><strong>Fungsi:</strong> Membantu menyelesaikan soal hitungan Fisika atau Kimia.</p>
+                <p><strong>Cara Pakai:</strong> Masukkan soal hitungan ke kolom, lalu klik tombol "Selesaikan Soal". AI akan memberikan langkah-langkah penyelesaiannya.</p>
+              </div>
               <textarea id="solver-input" placeholder="Masukkan soal Fisika/Kimia..." className="w-full h-32 p-4 border rounded-xl" />
+              <input type="file" accept="image/*" onChange={handleSolverImageUpload} className="hidden" id="solver-image-upload" />
+              <label htmlFor="solver-image-upload" className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-800 rounded-xl hover:bg-emerald-200 cursor-pointer">
+                <Upload size={20} /> {solverImage ? 'Ganti Foto Soal' : 'Lampirkan Foto Soal'}
+              </label>
+              {solverImage && <img src={solverImage} alt="Soal" className="max-h-48 rounded-xl border border-slate-200" referrerPolicy="no-referrer" />}
+              
               <button onClick={async () => {
                 const problem = (document.getElementById('solver-input') as HTMLTextAreaElement).value;
-                const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents: `Selesaikan soal ini secara bertahap (scaffolding): ${problem}. Mulai dengan bertanya satuan apa yang diketahui.` });
-                setSolverState({active: true, problem, step: 1, feedback: response.text || 'Error'});
-              }} className="w-full p-4 bg-emerald-600 text-white rounded-xl">Mulai Selesaikan</button>
+                let contents: any = `Selesaikan soal ini secara bertahap (scaffolding): ${problem}. Mulai dengan bertanya satuan apa yang diketahui.`;
+                
+                if (solverImage) {
+                  const base64Data = solverImage.split(',')[1];
+                  contents = [
+                    { inlineData: { mimeType: "image/jpeg", data: base64Data } },
+                    { text: `Selesaikan soal dalam gambar ini secara bertahap (scaffolding). Mulai dengan bertanya satuan apa yang diketahui. ${problem ? 'Tambahan soal: ' + problem : ''}` }
+                  ];
+                }
+
+                setIsAnalyzingSolver(true);
+                const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents });
+                setIsAnalyzingSolver(false);
+                setSolverState({active: true, problem: problem || 'Soal dari gambar', step: 1, feedback: response.text || 'Error'});
+              }} className="w-full p-4 bg-emerald-600 text-white rounded-xl disabled:opacity-50" disabled={isAnalyzingSolver}>
+                {isAnalyzingSolver ? 'Menganalisis...' : 'Mulai Selesaikan'}
+              </button>
               {solverState.active && (
                 <div className="p-4 bg-slate-100 rounded-xl">
                   <p>{solverState.feedback}</p>
