@@ -107,8 +107,8 @@ export default function App() {
       });
       setAnalysisResult(response.text || "Tidak ada hasil analisis.");
     } catch (error) {
-      console.error(error);
-      setAnalysisResult("Maaf, terjadi kesalahan saat menganalisis foto.");
+      console.error('Error analyzing image:', error);
+      setAnalysisResult(`Maaf, terjadi kesalahan saat menganalisis foto: ${error instanceof Error ? error.message : 'Kesalahan tidak diketahui'}. Pastikan API Key sudah terkonfigurasi dengan benar.`);
     } finally {
       setIsAnalyzing(false);
     }
@@ -126,8 +126,8 @@ export default function App() {
       });
       setLiteracyAnalysisResult(response.text || "Tidak ada hasil analisis.");
     } catch (error) {
-      console.error(error);
-      setLiteracyAnalysisResult("Maaf, terjadi kesalahan saat menganalisis materi.");
+      console.error('Error analyzing literacy:', error);
+      setLiteracyAnalysisResult(`Maaf, terjadi kesalahan saat menganalisis materi: ${error instanceof Error ? error.message : 'Kesalahan tidak diketahui'}. Pastikan API Key sudah terkonfigurasi.`);
     } finally {
       setIsAnalyzingLiteracy(false);
     }
@@ -149,8 +149,8 @@ export default function App() {
       });
       setMessages((prev) => [...prev, { sender: 'ai', text: response.text || "Maaf, saya tidak bisa menjawab itu." }]);
     } catch (error) {
-      console.error(error);
-      setMessages((prev) => [...prev, { sender: 'ai', text: "Maaf, terjadi kesalahan saat menghubungi AI." }]);
+      console.error('Error sending message:', error);
+      setMessages((prev) => [...prev, { sender: 'ai', text: `Maaf, terjadi kesalahan saat menghubungi AI: ${error instanceof Error ? error.message : 'Kesalahan tidak diketahui'}. Pastikan API Key sudah terkonfigurasi.` }]);
     }
   };
 
@@ -239,6 +239,7 @@ export default function App() {
                 <ArrowLeft size={20} /> Kembali
               </button>
               <h2 className="text-lg font-semibold">Detektif Lab (Vision)</h2>
+              <button onClick={() => { setSelectedImage(null); setAnalysisResult(null); }} className="text-sm text-emerald-600 underline">Mulai Ulang</button>
               <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
                 <p><strong>Fungsi:</strong> Menganalisis gambar hasil praktikum atau fenomena alam secara ilmiah.</p>
                 <p><strong>Cara Pakai:</strong> Klik "Unggah Foto", pilih gambar, lalu klik "Analisis Foto". AI akan menjelaskan apa yang ada di foto tersebut.</p>
@@ -274,6 +275,7 @@ export default function App() {
                 <ArrowLeft size={20} /> Kembali
               </button>
               <h2 className="text-lg font-semibold">Tanya AI (Roleplay)</h2>
+              <button onClick={() => setMessages([])} className="text-sm text-emerald-600 underline">Mulai Ulang</button>
               <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
                 <p><strong>Fungsi:</strong> Berdiskusi dengan AI mengenai materi IPA seolah-olah sedang berbicara dengan seorang ahli.</p>
                 <p><strong>Cara Pakai:</strong> Ketik pertanyaan atau topik IPA di kolom pesan, lalu kirim. AI akan menjawab dengan penjelasan yang mudah dipahami.</p>
@@ -307,6 +309,7 @@ export default function App() {
                 <ArrowLeft size={20} /> Kembali
               </button>
               <h2 className="text-lg font-semibold">Mode Tutor Literasi (Video & Teks)</h2>
+              <button onClick={() => { setTextInput(''); setLiteracyAnalysisResult(null); }} className="text-sm text-emerald-600 underline">Mulai Ulang</button>
               <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
                 <p><strong>Fungsi:</strong> Meringkas materi teks IPA yang panjang menjadi poin-poin penting.</p>
                 <p><strong>Cara Pakai:</strong> Masukkan teks materi ke dalam kolom, lalu klik "Analisis Materi". AI akan memberikan ringkasan dan pertanyaan pemahaman.</p>
@@ -342,6 +345,7 @@ export default function App() {
                 <ArrowLeft size={20} /> Kembali
               </button>
               <h2 className="text-lg font-semibold">Jurnal Belajar IPA</h2>
+              <button onClick={() => setJurnalContent('')} className="text-sm text-emerald-600 underline">Mulai Ulang</button>
               <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
                 <p><strong>Fungsi:</strong> Mencatat hasil pengamatan praktikum atau catatan penting pelajaran.</p>
                 <p><strong>Cara Pakai:</strong> Gunakan tombol kategori (Tujuan, Alat, dll.) untuk menyusun catatan, lalu tulis detailnya di kolom bawah dan klik "Simpan Catatan".</p>
@@ -377,6 +381,7 @@ export default function App() {
                 <ArrowLeft size={20} /> Kembali
               </button>
               <h2 className="text-lg font-semibold">Mode Guru</h2>
+              <button onClick={() => { setGuruResult(null); setGuruMateri(''); }} className="text-sm text-emerald-600 underline">Mulai Ulang</button>
               <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
                 <p><strong>Fungsi:</strong> Membantu guru menyusun perangkat pembelajaran (RPP, LKPD, Asesmen) secara otomatis.</p>
                 <p><strong>Cara Pakai:</strong> Masukkan kata kunci, pilih topik dan kelas, lalu pilih jenis perangkat yang ingin dibuat dan klik "Generate".</p>
@@ -523,6 +528,7 @@ export default function App() {
                 <ArrowLeft size={20} /> Kembali
               </button>
               <h2 className="text-lg font-semibold">Game Seru</h2>
+              <button onClick={() => setKuisState({active: false, question: null, level: 1, score: 0, materi: ''})} className="text-sm text-emerald-600 underline">Mulai Ulang</button>
               <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
                 <p><strong>Fungsi:</strong> Menguji pemahaman materi IPA melalui kuis interaktif.</p>
                 <p><strong>Cara Pakai:</strong> Pilih materi, klik "Mulai Game", jawab soal yang muncul, dan kumpulkan skor tertinggi!</p>
@@ -570,6 +576,7 @@ export default function App() {
                           const q = JSON.parse(response.text || '{}');
                           setKuisState(prev => ({...prev, level: newLevel, score: newScore, question: q}));
                         } catch (e) {
+                          console.error('Error parsing kuis question:', e);
                           setKuisState(prev => ({...prev, question: {question: 'Error memuat soal berikutnya', options: [], correctAnswer: ''}}));
                         }
                       }} className="w-full p-3 border border-emerald-200 rounded-xl hover:bg-emerald-50 text-left">{opt}</button>
@@ -585,6 +592,7 @@ export default function App() {
                 <ArrowLeft size={20} /> Kembali
               </button>
               <h2 className="text-lg font-semibold">Solver Sakti</h2>
+              <button onClick={() => { setSolverState({active: false, problem: '', step: 0, feedback: ''}); setSolverImage(null); }} className="text-sm text-emerald-600 underline">Mulai Ulang</button>
               <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-900">
                 <p><strong>Fungsi:</strong> Membantu menyelesaikan soal hitungan Fisika atau Kimia.</p>
                 <p><strong>Cara Pakai:</strong> Masukkan soal hitungan ke kolom, lalu klik tombol "Selesaikan Soal". AI akan memberikan langkah-langkah penyelesaiannya.</p>
@@ -609,9 +617,15 @@ export default function App() {
                 }
 
                 setIsAnalyzingSolver(true);
-                const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents });
-                setIsAnalyzingSolver(false);
-                setSolverState({active: true, problem: problem || 'Soal dari gambar', step: 1, feedback: response.text || 'Error'});
+                try {
+                  const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents });
+                  setSolverState({active: true, problem: problem || 'Soal dari gambar', step: 1, feedback: response.text || 'Error'});
+                } catch (e) {
+                  console.error('Error solving problem:', e);
+                  alert(`Kesalahan saat memulai solver: ${e instanceof Error ? e.message : 'Kesalahan tidak diketahui'}. Pastikan API Key sudah terkonfigurasi.`);
+                } finally {
+                  setIsAnalyzingSolver(false);
+                }
               }} className="w-full p-4 bg-emerald-600 text-white rounded-xl disabled:opacity-50" disabled={isAnalyzingSolver}>
                 {isAnalyzingSolver ? 'Menganalisis...' : 'Mulai Selesaikan'}
               </button>
@@ -621,8 +635,13 @@ export default function App() {
                   <input type="text" id="solver-jawaban" placeholder="Jawaban Anda..." className="w-full p-2 border rounded-xl mt-2" />
                   <button onClick={async () => {
                     const jawaban = (document.getElementById('solver-jawaban') as HTMLInputElement).value;
-                    const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents: `Soal: ${solverState.problem}. Feedback sebelumnya: ${solverState.feedback}. Jawaban murid: ${jawaban}. Berikan langkah selanjutnya.` });
-                    setSolverState(prev => ({...prev, step: prev.step + 1, feedback: response.text || 'Error'}));
+                    try {
+                      const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents: `Soal: ${solverState.problem}. Feedback sebelumnya: ${solverState.feedback}. Jawaban murid: ${jawaban}. Berikan langkah selanjutnya.` });
+                      setSolverState(prev => ({...prev, step: prev.step + 1, feedback: response.text || 'Error'}));
+                    } catch (e) {
+                      console.error('Error solving problem:', e);
+                      alert(`Kesalahan saat melanjutkan solver: ${e instanceof Error ? e.message : 'Kesalahan tidak diketahui'}. Pastikan API Key sudah terkonfigurasi.`);
+                    }
                   }} className="mt-2 p-2 bg-emerald-600 text-white rounded-xl">Lanjut</button>
                 </div>
               )}
