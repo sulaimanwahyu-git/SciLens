@@ -10,7 +10,17 @@ import { motion } from 'motion/react';
 import { GoogleGenAI } from "@google/genai";
 import ReactMarkdown from 'react-markdown';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+let aiInstance: GoogleGenAI | null = null;
+
+const getAi = () => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("API Key tidak terkonfigurasi. Mohon periksa pengaturan lingkungan aplikasi.");
+  }
+  if (!aiInstance) {
+    aiInstance = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  }
+  return aiInstance;
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'lab' | 'dialog' | 'tutor' | 'guru' | 'kuis' | 'solver' | 'tips' | 'jurnal'>('home');
@@ -96,7 +106,7 @@ export default function App() {
 
     try {
       const base64Data = selectedImage.split(',')[1];
-      const response = await ai.models.generateContent({
+      const response = await getAi().models.generateContent({
         model: "gemini-3-flash-preview",
         contents: {
           parts: [
@@ -120,7 +130,7 @@ export default function App() {
     setLiteracyAnalysisResult(null);
 
     try {
-      const response = await ai.models.generateContent({
+      const response = await getAi().models.generateContent({
         model: "gemini-3-flash-preview",
         contents: `Analisis teks berikut untuk tingkat pemahaman siswa SMP. Berikan ringkasan, poin-poin penting, dan pertanyaan pemahaman. Hindari penggunaan markdown yang berlebihan.\n\nTeks:\n${textInput}`,
       });
@@ -140,7 +150,7 @@ export default function App() {
     setChatInput('');
 
     try {
-      const response = await ai.models.generateContent({
+      const response = await getAi().models.generateContent({
         model: "gemini-3-flash-preview",
         contents: userMessage,
         config: {
@@ -464,7 +474,7 @@ export default function App() {
                             const prompt = guruView === 'asesmen'
                               ? `Buatkan ${guruJumlahSoal} soal ${guruJenisSoal} IPA untuk siswa SMP Kelas ${guruKelas} dengan topik: ${guruMateri}. Gunakan format yang rapi dan profesional.`
                               : `Buatkan ${guruView.toUpperCase()} IPA untuk siswa SMP Kelas ${guruKelas} dengan topik: ${guruMateri}. Gunakan format yang rapi dan profesional.`;
-                            const response = await ai.models.generateContent({
+                            const response = await getAi().models.generateContent({
                               model: "gemini-3-flash-preview",
                               contents: prompt,
                             });
@@ -544,7 +554,7 @@ export default function App() {
                   <button onClick={async () => {
                     if (!kuisState.materi) return;
                     setKuisState({...kuisState, active: true, level: 1, score: 0});
-                    const response = await ai.models.generateContent({ 
+                    const response = await getAi().models.generateContent({ 
                       model: "gemini-3-flash-preview", 
                       contents: `Berikan 1 soal IPA SMP materi ${kuisState.materi} level 1 dalam format JSON: { \"question\": \"...\", \"options\": [\"A...\", \"B...\", \"C...\", \"D...\"], \"correctAnswer\": \"...\" }. Jangan sertakan tanda baca atau penjelasan tambahan di luar JSON.` 
                     });
@@ -568,7 +578,7 @@ export default function App() {
                         const newLevel = isCorrect ? kuisState.level + 1 : Math.max(1, kuisState.level - 1);
                         
                         setKuisState(prev => ({...prev, question: null})); // Show loading
-                        const response = await ai.models.generateContent({ 
+                        const response = await getAi().models.generateContent({ 
                           model: "gemini-3-flash-preview", 
                           contents: `Soal: ${kuisState.question?.question}. Jawaban Anda: ${opt}. Apakah benar? Berikan feedback singkat. Lalu berikan soal berikutnya untuk materi ${kuisState.materi} level ${newLevel} dalam format JSON: { \"question\": \"...\", \"options\": [\"A...\", \"B...\", \"C...\", \"D...\"], \"correctAnswer\": \"...\" }. Jangan sertakan tanda baca atau penjelasan tambahan di luar JSON.` 
                         });
@@ -618,7 +628,7 @@ export default function App() {
 
                 setIsAnalyzingSolver(true);
                 try {
-                  const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents });
+                  const response = await getAi().models.generateContent({ model: "gemini-3-flash-preview", contents });
                   setSolverState({active: true, problem: problem || 'Soal dari gambar', step: 1, feedback: response.text || 'Error'});
                 } catch (e) {
                   console.error('Error solving problem:', e);
@@ -636,7 +646,7 @@ export default function App() {
                   <button onClick={async () => {
                     const jawaban = (document.getElementById('solver-jawaban') as HTMLInputElement).value;
                     try {
-                      const response = await ai.models.generateContent({ model: "gemini-3-flash-preview", contents: `Soal: ${solverState.problem}. Feedback sebelumnya: ${solverState.feedback}. Jawaban murid: ${jawaban}. Berikan langkah selanjutnya.` });
+                      const response = await getAi().models.generateContent({ model: "gemini-3-flash-preview", contents: `Soal: ${solverState.problem}. Feedback sebelumnya: ${solverState.feedback}. Jawaban murid: ${jawaban}. Berikan langkah selanjutnya.` });
                       setSolverState(prev => ({...prev, step: prev.step + 1, feedback: response.text || 'Error'}));
                     } catch (e) {
                       console.error('Error solving problem:', e);
